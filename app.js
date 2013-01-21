@@ -17,10 +17,16 @@ app.get('/', function (req, res) {
 });
 
 
-function Feeder() {
+function Feeder(pin) {
   this.board = new five.Board();
+  this.pin = pin;
   this.board.on("ready", function() {
-    this.servo = new five.Servo(9);
+    this.servo = new five.Servo({
+      pin: pin,
+      range: [40, 150]
+    });
+    this.firmata = this.board.firmata;
+    this.mode = this.firmata.MODES.SERVO;
     this.board.repl.inject({
       servo: this.servo,
       feeder: this
@@ -31,25 +37,24 @@ function Feeder() {
 util.inherits(Feeder, events.EventEmitter);
 
 Feeder.prototype.feed = function(seconds) {
-  this.servo.sweep([10, 150]);
+  this.servo.sweep();
   this.emit('feeding');
   setTimeout(function() {
     this.servo.stop();
-    this.servo.center();
     this.emit('done-feeding');
+    setTimeout(function() {
+      this.servo.min();
+    }.bind(this), 2000);
   }.bind(this), 1000 * seconds);
 };
 
 
-var feeder = new Feeder();
+var feeder = new Feeder(9);
 
 io.sockets.on('connection', function (socket) {
   socket.on('feed', function() {
     console.log('FEED');
-    feeder.feed(5);
-  });
-  socket.on('message', function(message) {
-    console.log("incoming message:", message);
+    feeder.feed(10);
   });
   feeder.on('feeding', function() {
     console.log("FEEDING");

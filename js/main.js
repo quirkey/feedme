@@ -11676,7 +11676,7 @@ $.extend(Sammy.DefaultLocationProxy.prototype , {
 })(jQuery, window);
 
 /*global io:true */
-var socket = io.connect('http://localhost');
+var socket = io.connect();
 
 jQuery(function($) {
   var $feed_button = $('#feed-button');
