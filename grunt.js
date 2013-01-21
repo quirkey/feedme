@@ -4,12 +4,14 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     lint: {
-      files: ['grunt.js', 'app.js', 'js/*.js']
+      files: ['grunt.js', 'app.js', 'js/app.js']
     },
     concat: {
       main: {
         src: [
-
+          "js/vendor/jquery-1.9.0.js",
+          "js/vendor/sammy.js",
+          "js/app.js"
         ],
         dest: 'js/main.js'
       }
@@ -17,12 +19,12 @@ module.exports = function(grunt) {
     min: {
       dist: {
         src: ['<config:concat.main.dest>'],
-        dest: 'js/<%= pkg.name %>.min.js'
+        dest: 'js/main.min.js'
       }
     },
     watch: {
       files: '<config:lint.files>',
-      tasks: 'lint'
+      tasks: 'lint concat'
     },
     jshint: {
       options: {
@@ -48,6 +50,6 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'lint qunit concat min');
+  grunt.registerTask('default', 'lint concat min');
 
 };
