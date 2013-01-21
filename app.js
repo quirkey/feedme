@@ -6,17 +6,17 @@ var express = require('express'),
     events = require("events"),
     util = require("util"),
     exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
     _ = require('underscore');
 
-app.use('/js', express['static'](__dirname + '/js'));
-app.use('/css', express['static'](__dirname + '/css'));
-app.use('/img', express['static'](__dirname + '/img'));
 
-app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
-});
+// Use imagesnap to get the machines camera and pipe to stdout
+function getCameraImage() {
+  console.log("image snapping");
+  return spawn("imagesnap", ["-", "-w", "1"]).stdout;
+}
 
-
+// FEEDER OBJECT
 function Feeder(pin) {
   this.board = new five.Board();
   this.pin = pin;
@@ -31,12 +31,25 @@ function Feeder(pin) {
       servo: this.servo,
       feeder: this
     });
+    this.servo.min();
+    this.disable();
   }.bind(this));
 }
 
 util.inherits(Feeder, events.EventEmitter);
 
+Feeder.prototype.disable = function() {
+  setTimeout(function() {
+    this.board.pinMode(this.pin, 1);
+  }.bind(this), 1000);
+};
+
+Feeder.prototype.enable = function() {
+  this.board.pinMode(this.pin, this.mode);
+};
+
 Feeder.prototype.feed = function(seconds) {
+  this.enable();
   this.servo.sweep();
   this.emit('feeding');
   setTimeout(function() {
@@ -44,10 +57,10 @@ Feeder.prototype.feed = function(seconds) {
     this.emit('done-feeding');
     setTimeout(function() {
       this.servo.min();
+      this.disable();
     }.bind(this), 2000);
   }.bind(this), 1000 * seconds);
 };
-
 
 var feeder = new Feeder(9);
 
@@ -66,6 +79,21 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
+// EXPRESS APP //
 
+app.use('/js', express['static'](__dirname + '/js'));
+app.use('/css', express['static'](__dirname + '/css'));
+app.use('/img', express['static'](__dirname + '/img'));
+
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/index.html');
+});
+
+app.get('/camera', function(req, res) {
+  res.type('image/jpeg');
+  getCameraImage().pipe(res);
+});
+
+// Boot
 server.listen(4330);
 console.log("Web Listening on 4330");
