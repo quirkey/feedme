@@ -13,7 +13,7 @@ var express = require('express'),
 // Use imagesnap to get the machines camera and pipe to stdout
 function getCameraImage(callback) {
   console.log("image snapping");
-   return exec("imagesnap -w 3 - | convert - -quality 70 -format jpeg -strip -width 600x -", callback);
+   return exec("`which imagesnap` -w 3 - | `which convert` - -quality 70 -format jpeg -strip -strip 600x -", callback);
 }
 
 // FEEDER OBJECT
@@ -41,7 +41,7 @@ util.inherits(Feeder, events.EventEmitter);
 Feeder.prototype.disable = function() {
   setTimeout(function() {
     this.board.pinMode(this.pin, 1);
-  }.bind(this), 1000);
+  }.bind(this), 2000);
 };
 
 Feeder.prototype.enable = function() {
@@ -58,7 +58,7 @@ Feeder.prototype.feed = function(seconds) {
     setTimeout(function() {
       this.servo.min();
       this.disable();
-    }.bind(this), 2000);
+    }.bind(this), 3000);
   }.bind(this), 1000 * seconds);
 };
 
