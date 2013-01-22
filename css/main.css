@@ -59,19 +59,33 @@ textarea {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+body {
+  background: #333;
+}
+#container {
+  width: 600px;
+  margin: 0 auto;
+  text-align:center;
+  padding: 10px 0px;
+}
 
+#camera {
+  width: 600px;
+  height: 450px;
+  background: #CCC;
+}
 
-
-
-
-
-
-
-
-
-
-
-
+#feed-button {
+  width: 600px;
+  height: 200px;
+  text-align:center;
+  font-weight: bold;
+  background-color: #ff8c00;
+  font-size: 4em;
+}
+#feed-button.feeding {
+  background-color: #CCC;
+}
 
 
 /* ==========================================================================

@@ -11693,12 +11693,29 @@ jQuery(function($) {
 
   socket.on('feeding', function() {
     isFeeding = true;
-    $feed_button.addClass('feeding').text('FEEDING');
+    $feed_button
+      .attr('disabled', 'disabled')
+      .addClass('feeding')
+      .text('FEEDING');
   });
 
   socket.on('done-feeding', function() {
     isFeeding = false;
-    $feed_button.removeClass('feeding').text('FEED');
+    $feed_button
+      .removeAttr('disabled')
+      .removeClass('feeding')
+      .text('FEED');
   });
 
+  function cameraRefresh($camera, rate) {
+    $camera.on('load', function() {
+      setTimeout(function() {
+        cameraRefresh($camera, rate);
+      }, rate);
+    });
+    $camera.attr('src', function(i, current) {
+      return current.replace(/\?\d+/, '') + '?' + (new Date()).getTime();
+    });
+  }
+  cameraRefresh($('#camera'), 1000);
 });
