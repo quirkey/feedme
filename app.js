@@ -13,7 +13,7 @@ var express = require('express'),
 // Use imagesnap to get the machines camera and pipe to stdout
 function getCameraImage(callback) {
   console.log("image snapping");
-   return exec("`which imagesnap` -w 3 - | `which convert` - -quality 70 -format jpeg -strip -strip 600x -", callback);
+  return exec("`which imagesnap` -w 3 - | `which convert` - -quality 70 -format jpeg -strip -resize 600x -", {encoding: 'binary', maxBuffer: 1024 * 1024 * 1000}, callback);
 }
 
 // FEEDER OBJECT
@@ -91,7 +91,7 @@ app.get('/', function (req, res) {
 
 app.get('/camera', function(req, res) {
   res.type('image/jpeg');
-  getCameraImage(function(err, stdout, stderr) { res.send(200, stdout) });
+  getCameraImage(function(err, stdout, stderr) { res.send(200, new Buffer(stdout, 'binary')) });
 });
 
 // Boot
